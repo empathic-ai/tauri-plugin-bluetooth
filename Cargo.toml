@@ -1,0 +1,13 @@
+[package]
+name = "tauri-plugin-bluetooth"
+version = "0.1.0"
+edition = "2021"
+
+[target.'cfg(all(not(target_arch = "wasm32")))'.dependencies]
+tauri = { version = "2.0.0-beta.14" }
+log = "0.4"
+serde = "1"
+thiserror = "1"
+
+[target.'cfg(all(not(target_arch = "wasm32")))'.build-dependencies]
+tauri-plugin = { version = "2.0.0-beta.11", features = ["build"] }
