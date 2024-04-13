@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.plugin.sample"
+    namespace = "com.plugin.bluetooth"
     compileSdk = 32
 
     defaultConfig {

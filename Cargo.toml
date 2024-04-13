@@ -12,3 +12,4 @@ thiserror = "1"
 
 [target.'cfg(all(not(target_arch = "wasm32")))'.build-dependencies]
 tauri-plugin = { version = "2.0.0-beta.11", features = ["build"] }
+tauri-build = "2.0.0-beta.11"

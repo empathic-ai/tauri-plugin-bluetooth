@@ -1,6 +1,9 @@
-const COMMANDS: &[&str] = &[];
+const COMMANDS: &[&str] = &["ping", "execute"];
 
 fn main() {
   #[cfg(not(target_arch = "wasm32"))]
-  tauri_plugin::Builder::new(COMMANDS).build()
+  tauri_plugin::Builder::new(COMMANDS)
+    .android_path("android")
+    .ios_path("ios")
+    .build();
 }
