@@ -1,4 +1,4 @@
-const COMMANDS: &[&str] = &["ping", "execute"];
+const COMMANDS: &[&str] = &["ping"];
 
 fn main() {
   #[cfg(not(target_arch = "wasm32"))]
