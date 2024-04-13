@@ -26,10 +26,11 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
     @Command
     fun ping(invoke: Invoke) {
         val args = invoke.parseArgs(PingArgs::class.java)
+        println("Received ping command with value: ${args.value ?: "default value :("}")
 
-        val event = JSObject()
-        event.put("kind", "ping")
-        args.onEvent?.send(event)
+        //val event = JSObject()
+        //event.put("kind", "ping")
+        //args.onEvent?.send(event)
 
         val ret = JSObject()
         ret.put("value", implementation.pong(args.value ?: "default value :("))

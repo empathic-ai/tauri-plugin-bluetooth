@@ -2,6 +2,7 @@
 name = "tauri-plugin-bluetooth"
 version = "0.1.0"
 edition = "2021"
+links = "tauri-plugin-bluetooth"
 
 [target.'cfg(all(not(target_arch = "wasm32")))'.dependencies]
 tauri = { version = "2.0.0-beta.14" }
