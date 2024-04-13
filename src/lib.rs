@@ -43,7 +43,7 @@ mod main {
   }
 
   pub fn init<R: Runtime>() -> TauriPlugin<R> {
-    Builder::new("sample")
+    Builder::new("bluetooth")
       .setup(|app, api| {
         #[cfg(mobile)]
         let sample = crate::mobile::init(app, api)?;
