@@ -1,7 +1,3 @@
-// Copyright 2019-2023 Tauri Programme within The Commons Conservancy
-// SPDX-License-Identifier: Apache-2.0
-// SPDX-License-Identifier: MIT
-
 use serde::de::DeserializeOwned;
 use tauri::{
   plugin::{PluginApi, PluginHandle},
@@ -11,27 +7,27 @@ use tauri::{
 use crate::models::*;
 
 #[cfg(target_os = "android")]
-const PLUGIN_IDENTIFIER: &str = "com.plugin.bluetooth";
+const PLUGIN_IDENTIFIER: &str = "";
 
 #[cfg(target_os = "ios")]
-tauri::ios_plugin_binding!(init_plugin_sample);
+tauri::ios_plugin_binding!(init_plugin_bluetooth);
 
 // initializes the Kotlin or Swift plugin classes
 pub fn init<R: Runtime, C: DeserializeOwned>(
   _app: &AppHandle<R>,
   api: PluginApi<R, C>,
-) -> crate::Result<Sample<R>> {
+) -> crate::Result<Bluetooth<R>> {
   #[cfg(target_os = "android")]
   let handle = api.register_android_plugin(PLUGIN_IDENTIFIER, "ExamplePlugin")?;
   #[cfg(target_os = "ios")]
-  let handle = api.register_ios_plugin(init_plugin_sample)?;
-  Ok(Sample(handle))
+  let handle = api.register_ios_plugin(init_plugin_bluetooth)?;
+  Ok(Bluetooth(handle))
 }
 
-/// A helper class to access the sample APIs.
-pub struct Sample<R: Runtime>(PluginHandle<R>);
+/// Access to the bluetooth APIs.
+pub struct Bluetooth<R: Runtime>(PluginHandle<R>);
 
-impl<R: Runtime> Sample<R> {
+impl<R: Runtime> Bluetooth<R> {
   pub fn ping(&self, payload: PingRequest) -> crate::Result<PingResponse> {
     self
       .0
