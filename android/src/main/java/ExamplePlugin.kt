@@ -7,13 +7,13 @@ import app.tauri.annotation.TauriPlugin
 import app.tauri.plugin.JSObject
 import app.tauri.plugin.Plugin
 import app.tauri.plugin.Invoke
-
+/*
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-
+ */
 @InvokeArg
 class PingArgs {
   var value: String? = null
@@ -23,6 +23,7 @@ class PingArgs {
 class ExamplePlugin(private val activity: Activity): Plugin(activity) {
     private val implementation = Example()
 
+/*
     private lateinit var bluetoothAdapter: BluetoothAdapter
 
     private val receiver = object : BroadcastReceiver() {
@@ -34,10 +35,11 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
             }
         }
     }
-
+ */
     @Command
     fun ping(invoke: Invoke) {
       
+      /*
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
 
         if (bluetoothAdapter == null) {
@@ -67,7 +69,7 @@ class ExamplePlugin(private val activity: Activity): Plugin(activity) {
                 // do what you need/want this these list items
             }
         }
-
+ */
         val args = invoke.parseArgs(PingArgs::class.java)
 
         val ret = JSObject()
