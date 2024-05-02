@@ -37,16 +37,30 @@ impl<R: Runtime, T: Manager<R>> crate::BluetoothExt<R> for T {
   }
 }
 
+#[tauri::command]
+async fn ping<R: Runtime>(app: tauri::AppHandle<R>, window: tauri::Window<R>, value: String) -> Result<String, String> {
+  println!("foobar");
+  Ok("HI FROM RUST!".into())
+}
+
 /// Initializes the plugin.
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
-  Builder::new("bluetooth")
-    .invoke_handler(tauri::generate_handler![commands::execute])
+  let mut builder = Builder::new("bluetooth");
+  #[cfg(desktop)]
+  {
+    builder = builder.invoke_handler(tauri::generate_handler![ping]);
+    println!("REGISTERED FOR DESKTOP!");
+  }
+
+  builder.invoke_handler(tauri::generate_handler![commands::execute])
     .setup(|app, api| {
       #[cfg(mobile)]
-      let bluetooth = mobile::init(app, api)?;
-      #[cfg(desktop)]
-      let bluetooth = desktop::init(app, api)?;
-      app.manage(bluetooth);
+      {
+        let bluetooth = mobile::init(app, api)?;
+        app.manage(bluetooth);
+      }
+      //#[cfg(desktop)]
+      //let bluetooth = desktop::init(app, api)?;
 
       // manage state so it is accessible by the commands
       app.manage(MyState::default());
