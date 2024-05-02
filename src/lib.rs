@@ -38,7 +38,7 @@ impl<R: Runtime, T: Manager<R>> crate::BluetoothExt<R> for T {
 }
 
 #[tauri::command]
-async fn ping<R: Runtime>(app: tauri::AppHandle<R>, window: tauri::Window<R>, value: String) -> Result<String, String> {
+async fn ping<R: Runtime>(app: tauri::AppHandle<R>, window: tauri::Window<R>, value: String) -> Result<String> {
   println!("foobar");
   Ok("HI FROM RUST!".into())
 }
@@ -52,7 +52,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
     println!("REGISTERED FOR DESKTOP!");
   }
 
-  builder.invoke_handler(tauri::generate_handler![commands::execute])
+  builder//.invoke_handler(tauri::generate_handler![commands::execute])
     .setup(|app, api| {
       #[cfg(mobile)]
       {
