@@ -9,10 +9,10 @@ exclude = ["/examples", "/webview-dist", "/webview-src", "/node_modules"]
 links = "tauri-plugin-bluetooth"
 
 [dependencies]
-tauri = { version = "2.0.0-beta.14" }
+tauri = { version = "2.0.0-beta.16" }
 serde = "1.0"
 thiserror = "1.0"
 
 [build-dependencies]
-tauri-plugin = { version = "2.0.0-beta.11", features = ["build"] }
-tauri-build = "2.0.0-beta.11"
+tauri-plugin = { version = "2.0.0-beta.13", features = ["build"] }
+tauri-build = "2.0.0-beta.13"
