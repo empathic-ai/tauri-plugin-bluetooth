@@ -1,11 +1,28 @@
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:7.4.2")
+    }
+}
+
+
 plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
 }
 
+repositories {
+    mavenLocal()
+    google()
+    mavenCentral()
+}
+
 android {
     namespace = "com.plugin.bluetooth"
-    compileSdk = 32
+    compileSdk = 33
 
     defaultConfig {
         minSdk = 21

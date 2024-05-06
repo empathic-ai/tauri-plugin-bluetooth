@@ -1,3 +1,12 @@
+pluginManagement {
+    repositories {
+        google()
+    }
+    plugins {
+        id 'com.android.library' version '7.4.2'
+    }
+}
+
 include ':tauri-android'
 project(':tauri-android').projectDir = new File('./.tauri/tauri-api')
 
