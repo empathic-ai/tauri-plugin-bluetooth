@@ -1,2 +1,18 @@
 include ':tauri-android'
 project(':tauri-android').projectDir = new File('./.tauri/tauri-api')
+
+buildscript {
+    ext.kotlin_version = "1.9.23"
+    repositories {
+        mavenCentral()
+        google()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.4.2'
+        classpath "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+    }
+}
+include ':btleplug'
+project(':btleplug').projectDir = new File(rootDir, '.tauri/btleplug')

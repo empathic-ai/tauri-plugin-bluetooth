@@ -121,19 +121,19 @@ pub async fn ble_test() -> anyhow::Result<()> {
 /// Initializes the plugin.
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
   let mut builder = Builder::new("bluetooth");
-  #[cfg(desktop)]
-  {
+  //#[cfg(desktop)]
+  //{
     builder = builder.invoke_handler(tauri::generate_handler![ping]);
-    println!("REGISTERED FOR DESKTOP!");
-  }
+    println!("REGISTERED BLUETOOTH PLUGIN COMMAND!");
+  //}
 
   builder//.invoke_handler(tauri::generate_handler![commands::execute])
     .setup(|app, api| {
-      #[cfg(mobile)]
-      {
-        let bluetooth = mobile::init(app, api)?;
-        app.manage(bluetooth);
-      }
+      //#[cfg(mobile)]
+      //{
+      //  let bluetooth = mobile::init(app, api)?;
+      //  app.manage(bluetooth);
+      //}
       //#[cfg(desktop)]
       //let bluetooth = desktop::init(app, api)?;
 
