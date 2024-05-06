@@ -9,8 +9,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/.tauri/btleplug" />
             <option value="$PROJECT_DIR$/.tauri/tauri-api" />
+            <option value="$PROJECT_DIR$/btleplug" />
           </set>
         </option>
         <option name="resolveExternalAnnotations" value="false" />
