@@ -10,7 +10,7 @@ links = "tauri-plugin-bluetooth"
 
 [dependencies]
 # tauri = { version = "2.0.0-beta.13" }
-tauri = { version = "2.0.0-beta.16" }
+tauri = { version = "2.0.0-beta.17" }
 serde = "1.0"
 thiserror = "1.0"
 btleplug = "0.11.5"
@@ -19,4 +19,4 @@ anyhow = "1.0.82"
 
 [build-dependencies]
 tauri-plugin = { version = "2.0.0-beta.13", features = ["build"] }
-tauri-build = "2.0.0-beta.13"
+tauri-build = { version = "2.0.0-beta.13", features = [] }
