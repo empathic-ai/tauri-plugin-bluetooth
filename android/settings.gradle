@@ -1,6 +1,9 @@
 include ':tauri-android'
 project(':tauri-android').projectDir = new File('./.tauri/tauri-api')
 
+include ':btleplug'
+project(':btleplug').projectDir = new File('./btleplug')
+
 buildscript {
     ext.kotlin_version = "1.9.23"
     repositories {
@@ -14,5 +17,3 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
     }
 }
-include ':btleplug'
-project(':btleplug').projectDir = new File('./btleplug')
