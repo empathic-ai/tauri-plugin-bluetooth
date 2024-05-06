@@ -15,4 +15,4 @@ buildscript {
     }
 }
 include ':btleplug'
-project(':btleplug').projectDir = new File(rootDir, '.tauri/btleplug')
+project(':btleplug').projectDir = new File(rootDir, './.tauri/btleplug')
