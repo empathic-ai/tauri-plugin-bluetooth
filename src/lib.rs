@@ -18,6 +18,9 @@ mod models;
 
 pub use error::{Error, Result};
 
+use std::ffi::c_void;
+
+
 #[cfg(desktop)]
 use desktop::Bluetooth;
 #[cfg(mobile)]
@@ -51,23 +54,17 @@ async fn ping<R: Runtime>(app: tauri::AppHandle<R>, window: tauri::Window<R>, va
   Ok("HI FROM RUST!".into())
 }
 
+#[cfg(target_os = "android")]
+#[no_mangle]
+pub extern "C" fn JNI_OnLoad(vm: jni::JavaVM, _res: *const c_void) -> jni::sys::jint {
+
+    let env = vm.get_env().unwrap();
+    jni_utils::init(&env).unwrap();
+    btleplug::platform::init(&env).unwrap();
+    jni::JNIVersion::V6.into()
+}
+
 pub async fn ble_test() -> anyhow::Result<()> {
-  #[cfg(target_os = "android")] {
-    let jvm_args = jni::InitArgsBuilder::new()
-    // Pass the JNI API version (default is 8)
-    .version(jni::JNIVersion::V8)
-    // You can additionally pass any JVM options (standard, like a system property,
-    // or VM-specific).
-    // Here we enable some extra JNI checks useful during development
-    .option("-Xcheck:jni")
-    .build()
-    .unwrap();
-
-    let jvm = jni::JavaVM::new(jvm_args)?;
-    let env = jvm.get_env()?;
-
-    btleplug::platform::init(&env)?;
-  }
 
   let manager = BtleManager::new().await?;
   let adapter_list = manager.adapters().await?;
