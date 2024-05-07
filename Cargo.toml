@@ -18,5 +18,5 @@ tokio = { version = "1.32.0", default-features = false, features = ["macros", "r
 anyhow = "1.0.82"
 
 [build-dependencies]
-tauri-plugin = { version = "2.0.0-beta.13", features = ["build"] }
+tauri-plugin = { version = "2.0.0-beta.10", features = ["build"] }
 tauri-build = { version = "2.0.0-beta.10", features = [] }
