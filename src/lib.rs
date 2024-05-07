@@ -52,6 +52,22 @@ async fn ping<R: Runtime>(app: tauri::AppHandle<R>, window: tauri::Window<R>, va
 }
 
 pub async fn ble_test() -> anyhow::Result<()> {
+  #[cfg(target_os = "android")] {
+    let jvm_args = jni::InitArgsBuilder::new()
+    // Pass the JNI API version (default is 8)
+    .version(jni::JNIVersion::V8)
+    // You can additionally pass any JVM options (standard, like a system property,
+    // or VM-specific).
+    // Here we enable some extra JNI checks useful during development
+    .option("-Xcheck:jni")
+    .build()
+    .unwrap();
+
+    let jvm = jni::JavaVM::new(jvm_args)?;
+    let env = jvm.get_env()?;
+
+    btleplug::platform::init(&env)?;
+  }
 
   let manager = BtleManager::new().await?;
   let adapter_list = manager.adapters().await?;
