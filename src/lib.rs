@@ -1,9 +1,10 @@
+use jni::{objects::GlobalRef, JNIEnv, AttachGuard, JavaVM};
 use tauri::{
   plugin::{Builder, TauriPlugin},
   Manager, Runtime,
 };
 
-use std::{collections::HashMap, sync::Mutex};
+use std::{cell::RefCell, collections::HashMap, sync::{atomic::{AtomicUsize, Ordering}, Mutex, Weak}};
 
 pub use models::*;
 
@@ -19,12 +20,15 @@ mod models;
 pub use error::{Error, Result};
 
 use std::ffi::c_void;
-
+use once_cell::sync::OnceCell;
 
 #[cfg(desktop)]
 use desktop::Bluetooth;
 #[cfg(mobile)]
 use mobile::Bluetooth;
+
+use lazy_static::lazy_static;
+use anyhow::anyhow;
 
 #[derive(Default)]
 struct MyState(Mutex<HashMap<String, String>>);
@@ -54,6 +58,92 @@ async fn ping<R: Runtime>(app: tauri::AppHandle<R>, window: tauri::Window<R>, va
   Ok("HI FROM RUST!".into())
 }
 
+pub static RUNTIME: OnceCell<tokio::runtime::Runtime> = OnceCell::new();
+static CLASS_LOADER: OnceCell<GlobalRef> = OnceCell::new();
+pub static JAVAVM: OnceCell<JavaVM> = OnceCell::new();
+
+std::thread_local! {
+  static JNI_ENV: RefCell<Option<AttachGuard<'static>>> = RefCell::new(None);
+}
+
+pub fn create_runtime() -> anyhow::Result<()> {
+  let vm = JAVAVM.get().ok_or(anyhow!("Failed to find Java VM!"))?;
+  let env = vm.attach_current_thread().unwrap();
+
+  // We create runtimes multiple times. Only run our loader setup once.
+  if CLASS_LOADER.get().is_none() {
+    setup_class_loader(&env).unwrap();
+  }
+  let runtime = {
+    tokio::runtime::Builder::new_multi_thread()
+      .enable_all()
+      .thread_name_fn(|| {
+        static ATOMIC_ID: AtomicUsize = AtomicUsize::new(0);
+        let id = ATOMIC_ID.fetch_add(1, Ordering::SeqCst);
+        format!("intiface-thread-{}", id)
+      })
+      .on_thread_stop(move || {
+        JNI_ENV.with(|f| *f.borrow_mut() = None);
+      })
+      .on_thread_start(move || {
+        // We now need to call the following code block via JNI calls. God help us.
+        //
+        //  java.lang.Thread.currentThread().setContextClassLoader(
+        //    java.lang.ClassLoader.getSystemClassLoader()
+        //  );
+        let vm = JAVAVM.get().unwrap();
+        let env = vm.attach_current_thread().unwrap();
+        let thread = env
+          .call_static_method(
+            "java/lang/Thread",
+            "currentThread",
+            "()Ljava/lang/Thread;",
+            &[],
+          )
+          .unwrap()
+          .l()
+          .unwrap();
+        env
+          .call_method(
+            thread,
+            "setContextClassLoader",
+            "(Ljava/lang/ClassLoader;)V",
+            &[CLASS_LOADER.get().unwrap().as_obj().into()],
+          )
+          .unwrap();
+        JNI_ENV.with(|f| *f.borrow_mut() = Some(env));
+      })
+      .build()
+      .unwrap()
+  };
+
+  RUNTIME.set(runtime).map_err(|_| anyhow!("Error mapping runtime (custom error)!"))?;
+  Ok(())
+}
+
+fn setup_class_loader(env: &JNIEnv) -> anyhow::Result<()> {
+  let thread = env
+    .call_static_method(
+      "java/lang/Thread",
+      "currentThread",
+      "()Ljava/lang/Thread;",
+      &[],
+    )?
+    .l()?;
+  let class_loader = env
+    .call_method(
+      thread,
+      "getContextClassLoader",
+      "()Ljava/lang/ClassLoader;",
+      &[],
+    )?
+    .l()?;
+
+  CLASS_LOADER
+    .set(env.new_global_ref(class_loader)?)
+    .map_err(|_| anyhow!("Class loader error (custom error)!"))
+}
+
 #[cfg(target_os = "android")]
 #[no_mangle]
 pub extern "C" fn JNI_OnLoad(vm: jni::JavaVM, _res: *const c_void) -> jni::sys::jint {
@@ -61,11 +151,25 @@ pub extern "C" fn JNI_OnLoad(vm: jni::JavaVM, _res: *const c_void) -> jni::sys::
     let env = vm.get_env().unwrap();
     jni_utils::init(&env).unwrap();
     btleplug::platform::init(&env).unwrap();
+    let _ = JAVAVM.set(vm);
     jni::JNIVersion::V6.into()
 }
 
 pub async fn ble_test() -> anyhow::Result<()> {
 
+  create_runtime()
+  .expect("Runtime should work, otherwise we can't function.");
+
+  RUNTIME.get().unwrap().spawn(
+    async move {
+      ble_run().await.expect("Failed to run bluetooth test!");
+    }
+  );
+
+  Ok(())
+}
+
+async fn ble_run() -> anyhow::Result<()> {
   let manager = BtleManager::new().await?;
   let adapter_list = manager.adapters().await?;
   if adapter_list.is_empty() {
