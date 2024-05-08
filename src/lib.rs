@@ -83,9 +83,11 @@ pub fn create_runtime() -> anyhow::Result<()> {
         format!("intiface-thread-{}", id)
       })
       .on_thread_stop(move || {
+        println!("JNI Thread stopped");
         JNI_ENV.with(|f| *f.borrow_mut() = None);
       })
       .on_thread_start(move || {
+        println!("JNI Thread started");
         // We now need to call the following code block via JNI calls. God help us.
         //
         //  java.lang.Thread.currentThread().setContextClassLoader(
@@ -152,7 +154,7 @@ pub extern "C" fn JNI_OnLoad(vm: jni::JavaVM, _res: *const c_void) -> jni::sys::
     jni_utils::init(&env).unwrap();
     btleplug::platform::init(&env).unwrap();
     let _ = JAVAVM.set(vm);
-    jni::JNIVersion::V8.into()
+    jni::JNIVersion::V6.into()
 }
 
 pub async fn ble_test() -> anyhow::Result<()> {
@@ -160,11 +162,11 @@ pub async fn ble_test() -> anyhow::Result<()> {
   create_runtime()
   .expect("Runtime should work, otherwise we can't function.");
 
-  RUNTIME.get().unwrap().spawn(
+  RUNTIME.get().unwrap().block_on(
     async move {
-      ble_run().await.expect("Failed to run bluetooth test!");
+      ble_run().await//.expect("Failed to run bluetooth test!");
     }
-  );
+  )?;
 
   Ok(())
 }
