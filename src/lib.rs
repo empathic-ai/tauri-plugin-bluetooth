@@ -152,7 +152,7 @@ pub extern "C" fn JNI_OnLoad(vm: jni::JavaVM, _res: *const c_void) -> jni::sys::
     jni_utils::init(&env).unwrap();
     btleplug::platform::init(&env).unwrap();
     let _ = JAVAVM.set(vm);
-    jni::JNIVersion::V6.into()
+    jni::JNIVersion::V8.into()
 }
 
 pub async fn ble_test() -> anyhow::Result<()> {
