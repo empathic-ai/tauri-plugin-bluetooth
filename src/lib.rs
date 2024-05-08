@@ -162,11 +162,11 @@ pub async fn ble_test() -> anyhow::Result<()> {
   create_runtime()
   .expect("Runtime should work, otherwise we can't function.");
 
-  RUNTIME.get().unwrap().block_on(
+  RUNTIME.get().unwrap().spawn(
     async move {
       ble_run().await//.expect("Failed to run bluetooth test!");
     }
-  )?;
+  ).await??;
 
   Ok(())
 }
