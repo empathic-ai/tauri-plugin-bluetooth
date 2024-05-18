@@ -67,7 +67,7 @@ std::thread_local! {
 }
 
 pub fn create_runtime() -> anyhow::Result<()> {
-  let vm = JAVAVM.get().ok_or(anyhow!("Failed to find Java VM!"))?;
+  let vm = JAVAVM.get().ok_or(anyhow::anyhow!("Failed to find Java VM!"))?;
   let env = vm.attach_current_thread().unwrap();
 
   // We create runtimes multiple times. Only run our loader setup once.
