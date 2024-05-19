@@ -1,4 +1,6 @@
+#[cfg(target_os = "android")]
 use jni::{objects::GlobalRef, JNIEnv, AttachGuard, JavaVM};
+
 use tauri::{
   plugin::{Builder, TauriPlugin},
   Manager, Runtime,
@@ -59,13 +61,38 @@ async fn ping<R: Runtime>(app: tauri::AppHandle<R>, window: tauri::Window<R>, va
 }
 
 pub static RUNTIME: OnceCell<tokio::runtime::Runtime> = OnceCell::new();
+
+#[cfg(target_os = "android")]
 static CLASS_LOADER: OnceCell<GlobalRef> = OnceCell::new();
+
+#[cfg(target_os = "android")]
 pub static JAVAVM: OnceCell<JavaVM> = OnceCell::new();
 
+#[cfg(target_os = "android")]
 std::thread_local! {
   static JNI_ENV: RefCell<Option<AttachGuard<'static>>> = RefCell::new(None);
 }
 
+#[cfg(not(target_os = "android"))]
+pub fn create_runtime() -> anyhow::Result<()> {
+  let runtime = {
+    tokio::runtime::Builder::new_multi_thread()
+      .enable_all()
+      .thread_name_fn(|| {
+        static ATOMIC_ID: AtomicUsize = AtomicUsize::new(0);
+        let id = ATOMIC_ID.fetch_add(1, Ordering::SeqCst);
+        format!("intiface-thread-{id}")
+      })
+      .on_thread_start(|| {})
+      .build()
+      .unwrap()
+  };
+
+  RUNTIME.set(runtime).map_err(|_| anyhow!("Error mapping runtime (custom error)!"))?;
+  Ok(())
+}
+
+#[cfg(target_os = "android")]
 pub fn create_runtime() -> anyhow::Result<()> {
   let vm = JAVAVM.get().ok_or(anyhow::anyhow!("Failed to find Java VM!"))?;
   let env = vm.attach_current_thread().unwrap();
@@ -123,6 +150,7 @@ pub fn create_runtime() -> anyhow::Result<()> {
   Ok(())
 }
 
+#[cfg(target_os = "android")]
 fn setup_class_loader(env: &JNIEnv) -> anyhow::Result<()> {
   let thread = env
     .call_static_method(
