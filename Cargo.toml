@@ -26,4 +26,3 @@ jni-utils = "0.1.1"
 
 [target.'cfg(all(not(target_arch = "wasm32"), not(target_arch = "xtensa")))'.build-dependencies]
 tauri-plugin = { version = "2.0.3", features = ["build"] }
-tauri-build = { version = "2.0.3", features = [] }
